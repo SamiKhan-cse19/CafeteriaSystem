@@ -5,11 +5,9 @@
 #ifndef CAFETERIASIMULATION_EVENT_H
 #define CAFETERIASIMULATION_EVENT_H
 
-class Server;
-
 class Event {
     public:
-		Event (Server* s) : server (s) {
+		Event () {
  			stime_ = 0.0;
 			rtime_ = 0.0;
 		}
@@ -23,8 +21,6 @@ class Event {
 		virtual void handle () = 0;
 
 		Event* next_;
-	protected:
-		Server* server;
 
 	private:
 		int eventType_;	// represented by event id

@@ -7,7 +7,6 @@
 
 #include <iostream>
 #include <fstream>
-using namespace std;
 
 Event* Scheduler :: eventList_;
 double Scheduler :: clock_;
@@ -40,21 +39,17 @@ Scheduler :: schedule (Event* e) {
 
 void
 Scheduler :: updateClock (double t) {
-    // ------------------------------------Task-1 (start)--------------------------------------------------
     // update clock time
     clock_ = t;
 
-	// ------------------------------------Task-1 (end)--------------------------------------------------
 }
 
 void
 Scheduler :: initialize () {
-    // ------------------------------------Task-2 (start)--------------------------------------------------
     // initialize the simulator
     // Hint: What's the value of clock in the beginning?
     clock_ = 0;
 
-	// ------------------------------------Task-2 (end)--------------------------------------------------
 }
 
 void
@@ -74,7 +69,6 @@ Scheduler :: addEvent (Event *e) {
 
 
 	previous = eventList_;
-	// ------------------------------------Task-3 (start)--------------------------------------------------
 	// Add the event as a first element in a non-empty list
 	// Hint: check for event expiry time
 	// Don't forget to return after adding the event
@@ -83,13 +77,11 @@ Scheduler :: addEvent (Event *e) {
 		eventList_ = e;
 		return;
 	}
-	// ------------------------------------Task-3 (end)--------------------------------------------------
 
 
 
 
 	current = previous -> next_;
-	// ------------------------------------Task-4 (start)--------------------------------------------------
 	// Add the event as an intermediate element of the eventlist
 	while (current != 0) {
 		if (e->expire() < current->expire ()) {
@@ -101,9 +93,6 @@ Scheduler :: addEvent (Event *e) {
 			previous = previous->next_;
 		}
 	}
-    // ------------------------------------Task-4 (end)--------------------------------------------------
-
-
 
 	// add as the last element
 	previous->next_ = e;
