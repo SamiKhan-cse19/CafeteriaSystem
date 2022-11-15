@@ -15,12 +15,17 @@ class Counter;
 class SubCounter { // facility in MSQS
 private:
     int id_;
+    int level_;
     vector <FoodServer* > servers;
-    Counter* counter;
+    Counter* counter_;
+    SubCounter* next_;
 public:
-    SubCounter (int id, int numOfServers, Counter* c);
+    SubCounter (int id, int lvl, int n, Counter* c, SubCounter* nxt);
     void initialize ();
     void arrivalHandler (Customer* cus);
+
+private:
+    FoodServer* getShortestQueueServer();
 
 };
 

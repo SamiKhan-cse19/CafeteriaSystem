@@ -1,3 +1,3 @@
-C:/Users/Win10/CLionProjects/CafeteriaSystem/cmake-build-debug/CMakeFiles/CafeteriaSimulation.dir
-C:/Users/Win10/CLionProjects/CafeteriaSystem/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/Win10/CLionProjects/CafeteriaSystem/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/samikhan/CLionProjects/CafeteriaSimulation/cmake-build-debug/CMakeFiles/CafeteriaSimulation.dir
+/home/samikhan/CLionProjects/CafeteriaSimulation/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/samikhan/CLionProjects/CafeteriaSimulation/cmake-build-debug/CMakeFiles/rebuild_cache.dir

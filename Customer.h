@@ -10,7 +10,8 @@ class Customer {
 private:
     int id_;
     Customer* next_;
-    double arrivalTime_;
+    double systemArrivalTime_;
+    double serverArrivalTime_;
     double foodAmount_;
 
 public:
@@ -18,7 +19,8 @@ public:
 
     inline double& foodAmount() { return foodAmount_; }
     inline int& id() { return id_; }
-    inline double& arrivalTime() { return arrivalTime_; }
+    inline double& systemArrivalTime() { return systemArrivalTime_; }
+    inline double& serverArrivalTime() { return serverArrivalTime_; }
     inline Customer* next() { return next_; }
 
 };

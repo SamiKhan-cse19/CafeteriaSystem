@@ -25,9 +25,16 @@ private:
     ArrivalEvent a_;
     TerminationEvent t_;
     int id_;
-    vector <vector <SubCounter> > subCounters; // 2D vector of sub-counters (represents levels and item choices)
+    vector <vector <SubCounter*> > subCounters; // 2D vector of sub-counters (represents levels and choice items)
 
+    // state variables
+    bool allowArrival_;
+
+    // input variables
     double arrivalMean_;
+    vector <vector <double> > probabilities; // P(i,j) = probability of choosing item j from level i
+
+    // probability distribution functions
     double exponential (double mean);
     static int discreteRandom ();
 
