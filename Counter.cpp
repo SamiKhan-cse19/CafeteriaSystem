@@ -51,7 +51,7 @@ void Counter :: initialize () {
     SubCounter* rice = new SubCounter(0, 0, 1, this, nullptr);
     SubCounter* bread = new SubCounter(1, 0, 1, this, nullptr);
 
-    /// initialize sub-counters and prababilities
+    /// initialize sub-counters and probabilities
     subCounters = vector<vector<SubCounter*> >(
             { { rice, bread },
                { dessert },
