@@ -4,6 +4,7 @@
 
 #include "Counter.h"
 #include "Customer.h"
+#include "FoodServer.h"
 #include <cstdlib>
 #include <cmath>
 
@@ -24,6 +25,7 @@ double Counter :: exponential(double mean) {
 void Counter :: initialize () {
     /// initialize the state variables
     allowArrival_ = true;
+    arrivalMean_ = 3.0;
 
     /// instantiate sub-counters (bottom-up)
 //    [
@@ -34,39 +36,30 @@ void Counter :: initialize () {
 //        [Dal]
 //    ]
     // level 4
-    SubCounter* dal = new SubCounter(0, 3, 1, this, nullptr);
+    SubCounter* dal = new SubCounter(0, 4, 0.7, 1, this, nullptr);
+    vector<SubCounter*> level4 = { dal };
 
     // level 3
-    SubCounter* raita = new SubCounter(1, 3, 1, this, nullptr);
+    SubCounter* raita = new SubCounter(0, 3, 0.4, 1, this, &level4);
+    vector<SubCounter*> level3 = { raita };
 
     // level 2
-    SubCounter* fish = new SubCounter(0, 2, 1, this, nullptr);
-    SubCounter* chicken = new SubCounter(1, 2, 1, this, nullptr);
-    SubCounter* meat = new SubCounter(2, 2, 1, this, nullptr);
+    SubCounter* fish = new SubCounter(0, 2, 0.2, 1, this, &level3);
+    SubCounter* chicken = new SubCounter(1, 2, 0.4, 1, this, &level3);
+    SubCounter* meat = new SubCounter(2, 2, 0.4, 1, this, &level3);
+    vector<SubCounter*> level2 = { fish, chicken, meat };
 
     // level 1
-    SubCounter* dessert = new SubCounter(0, 1, 1, this, nullptr);
+    SubCounter* dessert = new SubCounter(0, 1, 0.9, 1, this, &level2);
+    vector<SubCounter*> level1 = { dessert };
 
     // level 0
-    SubCounter* rice = new SubCounter(0, 0, 1, this, nullptr);
-    SubCounter* bread = new SubCounter(1, 0, 1, this, nullptr);
+    SubCounter* rice = new SubCounter(0, 0, 0.7, 1, this, &level1);
+    SubCounter* bread = new SubCounter(1, 0, 0.3, 1, this, &level1);
+    vector<SubCounter*> level0 = { rice, bread };
 
     /// initialize sub-counters and probabilities
-    subCounters = vector<vector<SubCounter*> >(
-            { { rice, bread },
-               { dessert },
-               { fish, chicken, meat },
-               { raita },
-               { dal } }
-               );
-    probabilities = vector<vector<double> >(
-            { { 0.7, 0.3 },
-              { 0.9 },
-              { 0.2, 0.4, 0.4 },
-              { 0.4 },
-              { 0.7 } }
-            );
-
+    subCounters = vector<vector<SubCounter*> >({ level0, level1, level2, level3, level3 });
     for (auto vs : subCounters) {
         for (auto sc : vs) {
             sc -> initialize();
@@ -76,6 +69,7 @@ void Counter :: initialize () {
     /// trigger first arrival event
     double t = exponential(arrivalMean_);
     /// trace file output
+    FoodServer :: trace_ << "\tinterarrival time = " << t << endl;
     a_.activate(t);
 
     /// trigger termination event
@@ -99,12 +93,12 @@ void Counter::arrivalHandler() {
         /// send customer to first sub-counter
         double u = (double)rand() / RAND_MAX;
         double s = 0.0;
-        for (int j = 0; j < probabilities[0].size(); ++j) {
-            if (u < s + probabilities[0][j]) {
+        for (int j = 0; j < subCounters[0].size(); ++j) {
+            if (u < s + subCounters[0][j]->probability()) {
                 subCounters[0][j] ->arrivalHandler(newCustomer);
                 break;
             }
-            s += probabilities[0][j];
+            s += subCounters[0][j]->probability();
         }
     }
 

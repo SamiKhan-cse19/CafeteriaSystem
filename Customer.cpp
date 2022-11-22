@@ -6,6 +6,6 @@
 #include "Scheduler.h"
 
 Customer ::Customer(int id) : id_(id){
-    arrivalTime_ = Scheduler :: now();
+    systemArrivalTime_ = Scheduler :: now();
     next_ = nullptr;
 }

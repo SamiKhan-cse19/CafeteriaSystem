@@ -3,6 +3,7 @@
 //
 
 #include "RefillEvent.h"
+#include "FoodServer.h"
 
 RefillEvent::RefillEvent(FoodServer *s) : server(s) {
 

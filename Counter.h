@@ -20,6 +20,7 @@ public:
 
     inline int& customerArrived () { return (customerArrived_); }
     inline double& arrivalMean () { return (arrivalMean_); }
+    inline int& id() { return id_; }
 
 private:
     ArrivalEvent a_;
@@ -32,7 +33,7 @@ private:
 
     // input variables
     double arrivalMean_;
-    vector <vector <double> > probabilities; // P(i,j) = probability of choosing item j from level i
+//    vector <vector <double> > probabilities; // P(i,j) = probability of choosing item j from level i
 
     // probability distribution functions
     double exponential (double mean);

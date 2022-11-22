@@ -3,6 +3,7 @@
 //
 
 #include "DepartureEvent.h"
+#include "FoodServer.h"
 
 DepartureEvent::DepartureEvent(FoodServer *s) : server(s) {
 

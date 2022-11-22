@@ -6,7 +6,9 @@
 #define CAFETERIASIMULATION_DEPARTUREEVENT_H
 
 
-#include "FoodServer.h"
+#include "Event.h"
+
+class FoodServer;
 
 class DepartureEvent : public Event {
 private:

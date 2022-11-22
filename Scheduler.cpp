@@ -120,9 +120,7 @@ Scheduler :: trigger () {
 	temp->handle ();
 }
 
-// ------------------------------------Task-5 (start)--------------------------------------------------
-// Complete the run() function
-// Follow the flow-chart provided in theory class
+
 void
 Scheduler :: run () {
 	Event * temp;
@@ -134,7 +132,10 @@ Scheduler :: run () {
 		temp->handle();
 	}
 }
-// ------------------------------------Task-5 (end)--------------------------------------------------
+
+void Scheduler::cancel(Event *e) {
+
+}
 
 
 

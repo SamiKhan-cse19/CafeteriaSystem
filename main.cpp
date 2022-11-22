@@ -1,6 +1,14 @@
-#include <iostream>
+
+#include "Counter.h"
+#include "Scheduler.h"
+
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+    Scheduler sch;
+    sch.initialize();
+    FoodServer::createTraceFile();
+    Counter c(0);
+    c.initialize();
+    sch.run();
     return 0;
 }

@@ -6,7 +6,9 @@
 #define CAFETERIASIMULATION_EVALUATIONEVENT_H
 
 
-#include "FoodServer.h"
+#include "Event.h"
+
+class FoodServer;
 
 class EvaluationEvent : public Event {
 private:

@@ -7,7 +7,9 @@
 
 
 #include "Event.h"
-#include "Counter.h"
+
+class Counter;
+
 
 class TerminationEvent : public Event {
 private:

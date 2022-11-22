@@ -12,16 +12,22 @@
 #include "RefillEvent.h"
 #include <queue>
 #include <cmath>
+#include <fstream>
+
 using namespace std;
+
+class SubCounter;
 
 class FoodServer {
 private:
     // state variables
     queue <Customer*> queue_;
-    int id_;
     int status_;
-    Customer* customerInService_;
     double foodLevel_;
+
+    int id_;
+    SubCounter* subCounter_;
+    Customer* customerInService_;
 
     // constants
     double minLevel_;
@@ -32,7 +38,6 @@ private:
     double refillMaxLag_;
     double customerMinAmount_;
     double customerMaxAmount_;
-
 
     // events
     DepartureEvent d_;
@@ -48,12 +53,17 @@ private:
     double areaFoodLevel_;
     double totalQueueingDelay_;
     double delay_;
+    double totalServerDelay_;
+    double serverDelay_;
     int customersArrived_;
     int customersServed_;
 
+    string getServerAddress();
 public:
-    FoodServer(int id, double minLevel, double maxLevel, double departureMean, double evaluationInterval, double refillMinLag, double refillMaxLag, double customerMinAmount, double customerMaxAmount);
+    FoodServer(int id, double minLevel, double maxLevel, double departureMean, double evaluationInterval, double refillMinLag, double refillMaxLag, double customerMinAmount, double customerMaxAmount, SubCounter* sc);
     void initialize();
+
+    friend std::ostream &operator<<(std::ostream &os, const FoodServer &server);
 
     // state variables accessors
     inline int& status() { return status_; }
@@ -71,6 +81,10 @@ public:
     void departureHandler ();
     void evaluationHandler ();
     void refillHandler ();
+
+    // static trace file
+    static ofstream trace_;
+    static void createTraceFile();
 };
 
 

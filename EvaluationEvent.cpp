@@ -3,6 +3,7 @@
 //
 
 #include "EvaluationEvent.h"
+#include "FoodServer.h"
 
 EvaluationEvent::EvaluationEvent(FoodServer *s) : server(s) {
 
