@@ -4,6 +4,7 @@
 
 #include "Customer.h"
 #include "Scheduler.h"
+#include "SubCounter.h"
 
 Customer ::Customer(int id) : id_(id){
     systemArrivalTime_ = Scheduler :: now();

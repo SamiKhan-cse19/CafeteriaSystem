@@ -1,14 +1,23 @@
 
+#include <iostream>
 #include "Counter.h"
 #include "Scheduler.h"
 
-
 int main() {
-    Scheduler sch;
-    sch.initialize();
+    srand(time(nullptr));
+    Scheduler* sch = new Scheduler();
+    sch -> initialize();
     FoodServer::createTraceFile();
-    Counter c(0);
-    c.initialize();
-    sch.run();
+    Counter* c = new Counter(0);
+    c -> initialize();
+    sch -> run();
+
+
+
+    /// Food Amount Unit testing
+//    SubCounter sc (0, 0, 0.5, 0.5, 4, 7, 1, nullptr, nullptr);
+//    cout<<sc.getCustomerAmount()<<endl;
+
+
     return 0;
 }

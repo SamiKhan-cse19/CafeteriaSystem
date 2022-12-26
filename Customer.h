@@ -6,6 +6,12 @@
 #define CAFETERIASIMULATION_CUSTOMER_H
 
 
+#include <queue>
+#include <utility>
+using namespace std;
+
+class SubCounter;
+
 class Customer {
 private:
     int id_;
@@ -13,10 +19,12 @@ private:
     double systemArrivalTime_;
     double serverArrivalTime_;
     double foodAmount_;
+    queue<pair<SubCounter*, double> > path_;  // pair<sub-counter, amount>
 
 public:
     Customer (int id);
 
+    inline queue<pair<SubCounter*, double> >& path() { return path_; }
     inline double& foodAmount() { return foodAmount_; }
     inline int& id() { return id_; }
     inline double& systemArrivalTime() { return systemArrivalTime_; }

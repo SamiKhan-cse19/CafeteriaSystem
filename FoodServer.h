@@ -10,11 +10,8 @@
 #include "DepartureEvent.h"
 #include "EvaluationEvent.h"
 #include "RefillEvent.h"
-#include <queue>
 #include <cmath>
 #include <fstream>
-
-using namespace std;
 
 class SubCounter;
 
@@ -36,16 +33,13 @@ private:
     double evaluationInterval_;
     double refillMinLag_;
     double refillMaxLag_;
-    double customerMinAmount_;
-    double customerMaxAmount_;
+//    double customerMinAmount_;
+//    double customerMaxAmount_;
 
     // events
     DepartureEvent d_;
     EvaluationEvent e_;
     RefillEvent r_;
-
-    // helper probability functions
-    double exponential (double mean);
 
     // statistical variables
     double timeLastEvent_;
@@ -58,9 +52,11 @@ private:
     int customersArrived_;
     int customersServed_;
 
+    bool allowEvaluation_;
+
     string getServerAddress();
 public:
-    FoodServer(int id, double minLevel, double maxLevel, double departureMean, double evaluationInterval, double refillMinLag, double refillMaxLag, double customerMinAmount, double customerMaxAmount, SubCounter* sc);
+    FoodServer(int id, double minLevel, double maxLevel, double departureMean, double evaluationInterval, double refillMinLag, double refillMaxLag, SubCounter* sc);
     void initialize();
 
     friend std::ostream &operator<<(std::ostream &os, const FoodServer &server);
@@ -78,6 +74,7 @@ public:
     inline double& refillMaxLag() { return refillMaxLag_; }
 
     void arrivalHandler (Customer* cus);
+    void terminationHandler ();
     void departureHandler ();
     void evaluationHandler ();
     void refillHandler ();
@@ -85,6 +82,10 @@ public:
     // static trace file
     static ofstream trace_;
     static void createTraceFile();
+
+    // helper probability functions
+    static double exponential (double mean);
+    static int discreteRandom ();
 };
 
 

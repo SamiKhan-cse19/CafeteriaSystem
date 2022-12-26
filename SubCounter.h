@@ -18,20 +18,26 @@ private:
     int id_;
     int level_;
     double probability_;
+    double foodUnit_;
+    double minAmount_;
+    double maxAmount_;
     vector <FoodServer* > servers;
     Counter* counter_;
     vector<SubCounter*>* next_;
 public:
-    SubCounter (int id, int lvl, double prob, int n, Counter* c, vector<SubCounter*>* nxt);
+    SubCounter (int id, int lvl, double prob, double unit, double minA, double maxA, int n, Counter* c, vector<SubCounter*>* nxt);
     void initialize ();
     void arrivalHandler (Customer* cus);
     void departureHandler (Customer* cus);
+    void terminationHandler ();
 
     inline int& id() { return id_; }
     inline int& level() { return level_; }
     inline double& probability() { return probability_; }
+    inline double& foodUnit() { return foodUnit_; }
 
     string getAddress();
+    float getCustomerAmount();
 
 private:
     FoodServer* getShortestQueueServer();

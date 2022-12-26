@@ -1,3 +1,20 @@
 # ninja log v5
-0	740	1668249200014065299	CMakeFiles/CafeteriaSimulation.dir/main.cpp.o	67ad79ce65382ffe
-741	836	1668249200110078478	CafeteriaSimulation	175adc4ee88967d8
+5926	8030	1671893469428224135	CMakeFiles/CafeteriaSimulation.dir/RefillEvent.cpp.o	92b5d32debc8b6bb
+2	1781	1671893463178253855	CMakeFiles/CafeteriaSimulation.dir/main.cpp.o	2d6c2a5844de93b5
+5062	7591	1671893468988226228	CMakeFiles/CafeteriaSimulation.dir/EvaluationEvent.cpp.o	b5dacb3c4c16bbb4
+1	2324	1671439303499327140	CMakeFiles/CafeteriaSimulation.dir/Scheduler.cpp.o	5dfba337c22f0c8
+3	1775	1671893463171587220	CMakeFiles/CafeteriaSimulation.dir/ArrivalEvent.cpp.o	4860fcfcf7e71064
+2	2322	1671439303495993836	CMakeFiles/CafeteriaSimulation.dir/Event.cpp.o	b46d1627b124ad15
+3779	5925	1671893467314900852	CMakeFiles/CafeteriaSimulation.dir/TerminationEvent.cpp.o	c5ec98c2a6dd60f1
+976	1073	1671897096419336850	CafeteriaSimulation	48c408b4b8069f79
+1781	3965	1671893465354910172	CMakeFiles/CafeteriaSimulation.dir/Customer.cpp.o	8c6e37e211a02ff3
+3966	6374	1671893467768232029	CMakeFiles/CafeteriaSimulation.dir/DepartureEvent.cpp.o	5f5fe92fa9a2330e
+0	965	1671896477138948340	CMakeFiles/CafeteriaSimulation.dir/FoodServer.cpp.o	c302992f999ffa22
+1	934	1671896896206955593	CMakeFiles/CafeteriaSimulation.dir/SubCounter.cpp.o	f714b3a844a3b4b3
+1	976	1671897096322670642	CMakeFiles/CafeteriaSimulation.dir/Counter.cpp.o	2ead409a90cb8179
+1	1467	1671897508434044305	CMakeFiles/CafeteriaSimulation.dir/FoodServer.cpp.o	c302992f999ffa22
+1467	1606	1671897508570710322	CafeteriaSimulation	48c408b4b8069f79
+1	1020	1671898009981659315	CMakeFiles/CafeteriaSimulation.dir/Counter.cpp.o	2ead409a90cb8179
+1020	1116	1671898010078325523	CafeteriaSimulation	48c408b4b8069f79
+1	1012	1671898036944864434	CMakeFiles/CafeteriaSimulation.dir/Counter.cpp.o	2ead409a90cb8179
+1012	1110	1671898037041530641	CafeteriaSimulation	48c408b4b8069f79

@@ -10,11 +10,11 @@
 #include "Counter.h"
 
 
-SubCounter::SubCounter(int id, int lvl, double prob, int n, Counter *c, vector<SubCounter*>* nxt) : id_(id), level_(lvl), probability_(prob), counter_(c), next_(nxt) {
+SubCounter::SubCounter(int id, int lvl, double prob, double unit, double minA, double maxA, int n, Counter *c, vector<SubCounter*>* nxt) : id_(id), level_(lvl), probability_(prob), counter_(c), next_(nxt), foodUnit_(unit), minAmount_(minA), maxAmount_(maxA) {
     // initialize servers vector
     this->servers = vector<FoodServer*>(n);
     for (int i = 0; i < servers.size(); ++i) {
-        servers[i] = new FoodServer(i, 0.0, 12.0, 4.0, 3.0, 5.0, 8.0, 1.0, 4.0, this);
+        servers[i] = new FoodServer(i, maxAmount_, 40.0, 4.0, 15.0, 5.0, 8.0, this);
 
 //        // for testing purpose
 //        cout<<*servers[i]<<endl;
@@ -63,22 +63,31 @@ FoodServer *SubCounter::getShortestQueueServer() {
 }
 
 string SubCounter::getAddress() {
-    return "(" + to_string(id_) +","+ to_string(level_) +","+ to_string(counter_->id()) + ")";
+    return to_string(counter_->id()) + "," + to_string(level_) + "," + to_string(id_);
 }
 
 void SubCounter::departureHandler(Customer *cus) {
-
-    if(!next_) {
+    if (cus -> path().empty()) {
+        // customer has finished service
         return;
     }
+    pair<SubCounter*, double> psa = cus -> path().front();
+    cus -> path().pop();
+    SubCounter* nextSubCounter = psa.first;
+    double amount = psa.second;
+    cus -> foodAmount() = amount;
+    nextSubCounter -> arrivalHandler(cus);
+}
 
+float SubCounter::getCustomerAmount() {
     double u = (double)rand() / RAND_MAX;
-    double s = 0.0;
-    for (int j = 0; j < next_->size(); ++j) {
-        if (u < s + next_->at(j)->probability()) {
-            next_->at(j)->arrivalHandler(cus);
-            break;
-        }
-        s += next_->at(j)->probability();
+    double l = minAmount_ / foodUnit_;
+    double h = maxAmount_ / foodUnit_;
+    return foodUnit_ * floor(l + (h - l + 1) * u );
+}
+
+void SubCounter::terminationHandler() {
+    for (auto s : servers) {
+        s -> terminationHandler();
     }
 }

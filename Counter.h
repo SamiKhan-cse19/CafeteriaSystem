@@ -36,7 +36,7 @@ private:
 //    vector <vector <double> > probabilities; // P(i,j) = probability of choosing item j from level i
 
     // probability distribution functions
-    double exponential (double mean);
+    double exponential ();
     static int discreteRandom ();
 
 };
