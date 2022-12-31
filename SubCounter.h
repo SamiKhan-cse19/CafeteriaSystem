@@ -31,6 +31,8 @@ public:
     void departureHandler (Customer* cus);
     void terminationHandler ();
 
+    void report();
+
     inline int& id() { return id_; }
     inline int& level() { return level_; }
     inline double& probability() { return probability_; }

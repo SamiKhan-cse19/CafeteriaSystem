@@ -18,6 +18,8 @@ public:
     void arrivalHandler();
     void terminationHandler();
 
+    void report();
+
     inline int& customerArrived () { return (customerArrived_); }
     inline double& arrivalMean () { return (arrivalMean_); }
     inline int& id() { return id_; }

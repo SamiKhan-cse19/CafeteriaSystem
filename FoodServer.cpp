@@ -26,9 +26,11 @@ void FoodServer::initialize() {
 
     customersArrived_ = 0;
     customersServed_ = 0;
+    customersLeft_ = 0;
     customerInService_ = nullptr;
 
     timeLastEvent_ = 0.0;
+    areaBusy_ = 0.0;
     areaQueue_ = 0.0;
     areaFoodLevel_ = 0.0;
     totalQueueingDelay_ = 0.0;
@@ -40,51 +42,92 @@ void FoodServer::initialize() {
 }
 
 void FoodServer::departureHandler() {
+//    // debug
+//    cout << "departure handler " << Scheduler :: now() << endl;
+
+    /// update statistical variables
+    updateStat();
+
     /// a customer has finished service at a server
     status() = 0;
     trace_<<"D\t"<<getServerAddress()<<"\t"<<Scheduler::now()<<"\t"<<customerInService_->id()<<"\t"<<status()<<"\t"<<queueLength()<<"\t"<<foodLevel_<<endl;
 
-    customersArrived_ ++;
+    customersServed_ ++;
     serverDelay_ = Scheduler :: now() - customerInService_ -> serverArrivalTime();
     totalServerDelay_ += serverDelay_;
 
-    Customer* exitingCustomer = customerInService_;
+    /// send to next sub-counter
+    subCounter_ ->departureHandler(customerInService_);
 
     if (queueLength() > 0) {
-        status() = 1;
         customerInService_ = queue_.front();
-        queue_.pop();
-
-        trace_<<"S\t"<<getServerAddress()<<"\t"<<Scheduler::now()<<"\t"<<customerInService_->id()<<"\t"<<status()<<"\t"<<queueLength()<<"\t"<<foodLevel_<<endl;
-        // calculate delay
-        delay_ = Scheduler :: now() - customerInService_ -> serverArrivalTime();
-        totalQueueingDelay_ += delay_;
 
         /// check if food is available
         if(customerInService_ -> foodAmount() < foodLevel_) {
             // if yes, decrease food level and trigger departure event from server
+            status() = 1;
+            queue_.pop();
+
+            /// trace file output : service start
+            trace_<<"S\t"<<getServerAddress()<<"\t"<<Scheduler::now()<<"\t"<<customerInService_->id()<<"\t"<<status()<<"\t"<<queueLength()<<"\t"<<foodLevel_<<endl;
+
+
+            // calculate delay
+            delay_ = Scheduler :: now() - customerInService_ -> serverArrivalTime();
+            totalQueueingDelay_ += delay_;
+
             foodLevel_ -= customerInService_ -> foodAmount();
             double t = exponential(departureMean_);
             /// trace file output
             trace_<< "\tservice time = " << t << endl;
+//            cout << "service time = " << t << endl;
             d_.activate(t);
         } else {
             /// trace file output
             trace_ << "\tinsufficient food level"<<endl;
+            customerInService_ = nullptr;
+
+            if (!allowEvaluation_) {
+                /// no more refill event, serve first customer with remaining food (If any) and clear queue
+                if (foodLevel_ > 0) {
+                    status() = 1;
+                    customerInService_ = queue_.front();
+                    queue_.pop();
+
+                    // calculate delay
+                    delay_ = Scheduler :: now() - customerInService_ -> serverArrivalTime();
+                    totalQueueingDelay_ += delay_;
+                    foodLevel_ = 0.0;
+
+                    double t = exponential(departureMean_);
+                    /// trace file output
+                    trace_<< "\tservice time = " << t << endl;
+//                    cout << "service time = " << t << endl;
+                    d_.activate(t);
+                }
+                clearQueue();
+            }
         }
 
     } else {
         customerInService_ = nullptr;
     }
-
-    /// send to next sub-counter
-    subCounter_ ->departureHandler(exitingCustomer);
 }
 
 void FoodServer::evaluationHandler() {
-    int cid_ = -1;
+//    // debug
+//    cout << "evaluation handler " << Scheduler :: now() << endl;
+
+    /// No more evaluation and refill after termination
+    if (!allowEvaluation_)
+        return;
+
+    /// update statistical variables
+    updateStat();
+
+    string cid_ = "X";
     if (customerInService_) {
-        cid_ = customerInService_ -> id();
+        cid_ = to_string(customerInService_ -> id());
     }
     /// trace file output
     trace_<<"E\t"<<getServerAddress()<<"\t"<<Scheduler::now()<<"\t"<<cid_<<"\t"<<status()<<"\t"<<queueLength()<<"\t"<<foodLevel_<<endl;
@@ -92,63 +135,141 @@ void FoodServer::evaluationHandler() {
         double t = refillMinLag_ + (refillMaxLag_ - refillMinLag_) * (double)rand()/(RAND_MAX);
         /// trace file output
         trace_<<"\tdelivery lag = "<<t<<endl;
+//        cout << "delivery lag = " << t << endl;
         r_.activate(t);
     }
 
-    if (allowEvaluation_) {
-        /// trigger next evaluation event
-        e_.activate(evaluationInterval_);
-    }
+    /// trigger next evaluation event
+    e_.activate(evaluationInterval_);
+
 }
 
 void FoodServer::refillHandler() {
+//    // debug
+//    cout << "refill handler " << Scheduler :: now() << endl;
+
+    /// update statistical variables
+    updateStat();
+
     foodLevel_ = maxLevel_;
-    int cid_ = -1;
-    if (customerInService_) {
-        cid_ = customerInService_ -> id();
-    }
+    string cid_ = "X";
+
     /// trace file output
     trace_<<"R\t"<<getServerAddress()<<"\t"<<Scheduler::now()<<"\t"<<cid_<<"\t"<<status()<<"\t"<<queueLength()<<"\t"<<foodLevel_<<endl;
-    if (status() == 1) {
-        /// trace file output
-        trace_<<"S\t"<<getServerAddress()<<"\t"<<Scheduler::now()<<"\t"<<customerInService_->id()<<"\t"<<status()<<"\t"<<queueLength()<<"\t"<<foodLevel_<<endl;
 
-        foodLevel_ -= customerInService_ -> foodAmount();
-        double t = exponential(departureMean_);
-        /// trace file output
-        trace_<< "\tservice time = " << t << endl;
-        d_.activate(t);
+    if (status() == 0 && queueLength() > 0) {
+        customerInService_ = queue_.front();
+
+        /// check if food is available [Probably Redundant]
+        if(customerInService_ -> foodAmount() < foodLevel_) {
+            // if yes, decrease food level and trigger departure event from server
+            status() = 1;
+            queue_.pop();
+
+            /// trace file output : service start
+            trace_<<"S\t"<<getServerAddress()<<"\t"<<Scheduler::now()<<"\t"<<customerInService_->id()<<"\t"<<status()<<"\t"<<queueLength()<<"\t"<<foodLevel_<<endl;
+
+            // calculate delay
+            delay_ = Scheduler :: now() - customerInService_ -> serverArrivalTime();
+            totalQueueingDelay_ += delay_;
+
+            foodLevel_ -= customerInService_ -> foodAmount();
+            double t = exponential(departureMean_);
+            /// trace file output
+            trace_<< "\tservice time = " << t << endl;
+//            cout << "service time = " << t << endl;
+            d_.activate(t);
+        } else {
+            /// trace file output
+            trace_ << "\tinsufficient food level"<<endl;
+            customerInService_ = nullptr;
+
+            if (!allowEvaluation_) {
+                /// no more refill event, serve first customer with remaining food (If any) and clear queue
+                if (foodLevel_ > 0) {
+                    status() = 1;
+                    customerInService_ = queue_.front();
+                    queue_.pop();
+
+                    // calculate delay
+                    delay_ = Scheduler :: now() - customerInService_ -> serverArrivalTime();
+                    totalQueueingDelay_ += delay_;
+                    foodLevel_ = 0.0;
+
+                    double t = exponential(departureMean_);
+                    /// trace file output
+                    trace_<< "\tservice time = " << t << endl;
+//                    cout << "service time = " << t << endl;
+                    d_.activate(t);
+                }
+                clearQueue();
+            }
+        }
+
     }
 }
 
 void FoodServer::arrivalHandler(Customer* cus) {
+//    // debug
+//    cout << "arrival handler " << Scheduler :: now() << endl;
+
+    /// update statistical variables
+    updateStat();
+
     customersArrived_ ++;
     /// trace file output
     /// <Event> <Server> <Time> <Customer ID> <Server Status> <Queue Size> <Food Level>
     trace_<<"A\t"<<getServerAddress()<<"\t"<<Scheduler::now()<<"\t"<<cus->id()<<"\t"<<status()<<"\t"<<queueLength()<<"\t"<<foodLevel_<<endl;
 
-    if (status() == 0) {
-        status() = 1;
-        trace_<<"S\t"<<getServerAddress()<<"\t"<<Scheduler::now()<<"\t"<<cus->id()<<"\t"<<status()<<"\t"<<queueLength()<<"\t"<<foodLevel_<<endl;
-        customerInService_ = cus;
-
-        delay_ = Scheduler :: now() - customerInService_ -> serverArrivalTime();
-        totalQueueingDelay_ += delay_;
-
+    if (status() == 0) {  /// server is idle
         /// check if food is available
-        if(customerInService_ -> foodAmount() < foodLevel_) {
-            // if yes, decrease food level and trigger departure event from server
+        if(cus -> foodAmount() < foodLevel_) {
+            // if yes, make server busy, decrease food level and trigger departure event from server
+            status() = 1;
+            trace_<<"S\t"<<getServerAddress()<<"\t"<<Scheduler::now()<<"\t"<<cus->id()<<"\t"<<status()<<"\t"<<queueLength()<<"\t"<<foodLevel_<<endl;
+
+            customerInService_ = cus;
+
+            /// calculate delay
+            delay_ = Scheduler :: now() - customerInService_ -> serverArrivalTime();
+            totalQueueingDelay_ += delay_;
+
             foodLevel_ -= customerInService_ -> foodAmount();
             double t = exponential(departureMean_);
             /// trace file output
             trace_<< "\tservice time = " << t << endl;
+//            cout << "service time = " << t << endl;
             d_.activate(t);
         } else {
             ///  trace file output
             trace_<<"\tinsufficient food level"<<endl;
+            queue_.push(cus);
+            customerInService_ = nullptr;
+
+            if (!allowEvaluation_) {
+                /// no more refill event, serve first customer with remaining food (If any) and clear queue
+                if (foodLevel_ > 0) {
+                    status() = 1;
+                    customerInService_ = queue_.front();
+                    queue_.pop();
+
+                    // calculate delay
+                    delay_ = Scheduler :: now() - customerInService_ -> serverArrivalTime();
+                    totalQueueingDelay_ += delay_;
+                    foodLevel_ = 0.0;
+
+                    double t = exponential(departureMean_);
+                    /// trace file output
+                    trace_<< "\tservice time = " << t << endl;
+//                    cout << "service time = " << t << endl;
+                    d_.activate(t);
+                }
+                clearQueue();
+            }
         }
 
     } else {
+        trace_<<"\tserver busy"<<endl;
         queue_.push(cus);
     }
 }
@@ -191,5 +312,55 @@ int FoodServer::discreteRandom() {
 }
 
 void FoodServer::terminationHandler() {
+//    // debug
+//    cout << "termination handler " << Scheduler :: now() << endl;
+
     allowEvaluation_ = false;
+
+    if (status() == 0 && queueLength() > 0) { /// if customers waiting for refill event
+        clearQueue();
+    }
+}
+
+void FoodServer::report() {
+    /// update statistical variables
+    updateStat();
+
+    cout << "Server: " << getServerAddress() << endl;
+    cout << "Total Customers Arrived: " << customersArrived_ << endl;
+    cout << "Total Customers Served: " << customersServed_ <<endl;
+    cout << "Total Customers Left Unserved: " << customersLeft_ <<endl;
+    cout << "Average Server Utilization: " << 100 * areaBusy_ / Scheduler :: now() << "%" << endl;
+    cout << "Average Queue Length: " << areaQueue_ / Scheduler :: now() << endl;
+    cout << "Average Food Level: " << areaFoodLevel_ / Scheduler :: now() << endl;
+    cout << "Average Queue Delay: " << totalQueueingDelay_ / customersArrived_ << endl;
+    cout << "Average Service Delay: " << totalServerDelay_ / customersServed_ << endl;
+
+    // debug
+    if (customersArrived_ != customersServed_ + customersLeft_) cout << "XXXXXXXXXX" <<endl;
+}
+
+void FoodServer::updateStat() {
+    double duration_ = Scheduler :: now() - timeLastEvent_;
+    areaBusy_ += duration_ * status();
+    areaQueue_ += duration_ * queueLength();
+    areaFoodLevel_ += duration_ * foodLevel_;
+    timeLastEvent_ = Scheduler :: now();
+}
+
+void FoodServer::clearQueue() {
+    while (queueLength() > 0) {
+        Customer* unservedCustomer_ = queue_.front();
+        queue_.pop();
+
+        customersLeft_ ++;
+
+        trace_<<"N\t"<<getServerAddress()<<"\t"<<Scheduler::now()<<"\t"<<unservedCustomer_->id()<<"\t"<<status()<<"\t"<<queueLength()<<"\t"<<foodLevel_<<endl;
+
+        delay_ = Scheduler :: now() - unservedCustomer_ -> serverArrivalTime();
+        totalQueueingDelay_ += delay_;
+
+        /// send to next sub-counter
+        subCounter_ ->departureHandler(unservedCustomer_);
+    }
 }

@@ -14,7 +14,7 @@ SubCounter::SubCounter(int id, int lvl, double prob, double unit, double minA, d
     // initialize servers vector
     this->servers = vector<FoodServer*>(n);
     for (int i = 0; i < servers.size(); ++i) {
-        servers[i] = new FoodServer(i, maxAmount_, 40.0, 4.0, 15.0, 5.0, 8.0, this);
+        servers[i] = new FoodServer(i, maxAmount_, 40.0, 4.0, 13.0, 5.0, 7.0, this);
 
 //        // for testing purpose
 //        cout<<*servers[i]<<endl;
@@ -90,4 +90,12 @@ void SubCounter::terminationHandler() {
     for (auto s : servers) {
         s -> terminationHandler();
     }
+}
+
+void SubCounter::report() {
+    cout << "Sub-counter: " << id() << endl;
+    for (auto s : servers) {
+        s -> report();
+    }
+
 }

@@ -73,7 +73,7 @@ void Counter :: initialize () {
     a_.activate(t);
 
     /// trigger termination event
-    t_.activate(120.0); // 150 min or 2:30 hrs
+    t_.activate(150.0); // 150 min or 2:30 hrs
 }
 
 void Counter::arrivalHandler() {
@@ -138,6 +138,14 @@ void Counter::terminationHandler() {
     for (auto vsc : subCounters) {
         for ( auto sc : vsc) {
             sc -> terminationHandler();
+        }
+    }
+}
+
+void Counter::report() {
+    for(auto vsc : subCounters) {
+        for ( auto sc : vsc) {
+            sc -> report();
         }
     }
 }

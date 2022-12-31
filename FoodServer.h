@@ -43,6 +43,7 @@ private:
 
     // statistical variables
     double timeLastEvent_;
+    double areaBusy_;
     double areaQueue_;
     double areaFoodLevel_;
     double totalQueueingDelay_;
@@ -51,10 +52,13 @@ private:
     double serverDelay_;
     int customersArrived_;
     int customersServed_;
+    int customersLeft_;
 
     bool allowEvaluation_;
 
     string getServerAddress();
+
+    void clearQueue();
 public:
     FoodServer(int id, double minLevel, double maxLevel, double departureMean, double evaluationInterval, double refillMinLag, double refillMaxLag, SubCounter* sc);
     void initialize();
@@ -78,6 +82,9 @@ public:
     void departureHandler ();
     void evaluationHandler ();
     void refillHandler ();
+
+    void updateStat();
+    void report();
 
     // static trace file
     static ofstream trace_;

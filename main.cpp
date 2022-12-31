@@ -12,6 +12,7 @@ int main() {
     c -> initialize();
     sch -> run();
 
+    c -> report();
 
 
     /// Food Amount Unit testing
