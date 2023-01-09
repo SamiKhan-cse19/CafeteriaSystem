@@ -39,7 +39,8 @@ public:
     inline double& foodUnit() { return foodUnit_; }
 
     string getAddress();
-    float getCustomerAmount();
+    double getCustomerAmount();
+    double getCustomerServiceTime();
 
 private:
     FoodServer* getShortestQueueServer();

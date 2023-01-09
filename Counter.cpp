@@ -99,7 +99,8 @@ void Counter::arrivalHandler() {
             for (int j = 0; j < lvl.size(); ++j) {
                 if (u < s + lvl[j]->probability()) {
                     double amount = lvl[j] -> getCustomerAmount();
-                    newCustomer -> path().push({lvl[j], amount});
+                    double serviceTime = lvl[j] -> getCustomerServiceTime();
+                    newCustomer -> path().push({lvl[j], {amount, serviceTime}});
                     break;
                 }
                 s += lvl[j]->probability();
@@ -107,11 +108,13 @@ void Counter::arrivalHandler() {
         }
 
         /// send customer to first sub-counter
-        pair<SubCounter*, double> psa = newCustomer -> path().front();
+        pair<SubCounter*, pair<double, double> > psas = newCustomer -> path().front();
         newCustomer -> path().pop();
-        SubCounter* nextSubCounter = psa.first;
-        double amount = psa.second;
+        SubCounter* nextSubCounter = psas.first;
+        double amount = psas.second.first;
+        double serviceTime = psas.second.second;
         newCustomer -> foodAmount() = amount;
+        newCustomer -> serviceTime() = serviceTime;
         nextSubCounter -> arrivalHandler(newCustomer);
     }
 

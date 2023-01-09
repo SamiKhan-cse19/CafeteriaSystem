@@ -53,6 +53,8 @@ private:
     int customersArrived_;
     int customersServed_;
     int customersLeft_;
+    int customersStalled_;
+    int refillCount_;
 
     bool allowEvaluation_;
 
@@ -93,6 +95,9 @@ public:
     // helper probability functions
     static double exponential (double mean);
     static int discreteRandom ();
+    double continuousRandom ();
+
+    inline double getCustomerServiceTime () { return exponential(departureMean_); }
 };
 
 

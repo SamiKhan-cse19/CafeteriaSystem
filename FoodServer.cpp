@@ -27,6 +27,8 @@ void FoodServer::initialize() {
     customersArrived_ = 0;
     customersServed_ = 0;
     customersLeft_ = 0;
+    customersStalled_ = 0;
+    refillCount_ = 0;
     customerInService_ = nullptr;
 
     timeLastEvent_ = 0.0;
@@ -77,7 +79,7 @@ void FoodServer::departureHandler() {
             totalQueueingDelay_ += delay_;
 
             foodLevel_ -= customerInService_ -> foodAmount();
-            double t = exponential(departureMean_);
+            double t = customerInService_ -> serviceTime();
             /// trace file output
             trace_<< "\tservice time = " << t << endl;
 //            cout << "service time = " << t << endl;
@@ -99,13 +101,15 @@ void FoodServer::departureHandler() {
                     totalQueueingDelay_ += delay_;
                     foodLevel_ = 0.0;
 
-                    double t = exponential(departureMean_);
+                    double t = customerInService_ -> serviceTime();
                     /// trace file output
                     trace_<< "\tservice time = " << t << endl;
 //                    cout << "service time = " << t << endl;
                     d_.activate(t);
                 }
                 clearQueue();
+            } else {
+                customersStalled_ ++;
             }
         }
 
@@ -131,8 +135,8 @@ void FoodServer::evaluationHandler() {
     }
     /// trace file output
     trace_<<"E\t"<<getServerAddress()<<"\t"<<Scheduler::now()<<"\t"<<cid_<<"\t"<<status()<<"\t"<<queueLength()<<"\t"<<foodLevel_<<endl;
+    double t = continuousRandom();
     if (foodLevel_ < minLevel_) {
-        double t = refillMinLag_ + (refillMaxLag_ - refillMinLag_) * (double)rand()/(RAND_MAX);
         /// trace file output
         trace_<<"\tdelivery lag = "<<t<<endl;
 //        cout << "delivery lag = " << t << endl;
@@ -150,7 +154,7 @@ void FoodServer::refillHandler() {
 
     /// update statistical variables
     updateStat();
-
+    refillCount_ ++;
     foodLevel_ = maxLevel_;
     string cid_ = "X";
 
@@ -174,7 +178,7 @@ void FoodServer::refillHandler() {
             totalQueueingDelay_ += delay_;
 
             foodLevel_ -= customerInService_ -> foodAmount();
-            double t = exponential(departureMean_);
+            double t = customerInService_ -> serviceTime();
             /// trace file output
             trace_<< "\tservice time = " << t << endl;
 //            cout << "service time = " << t << endl;
@@ -196,13 +200,15 @@ void FoodServer::refillHandler() {
                     totalQueueingDelay_ += delay_;
                     foodLevel_ = 0.0;
 
-                    double t = exponential(departureMean_);
+                    double t = customerInService_ -> serviceTime();
                     /// trace file output
                     trace_<< "\tservice time = " << t << endl;
 //                    cout << "service time = " << t << endl;
                     d_.activate(t);
                 }
                 clearQueue();
+            } else {
+                customersStalled_ ++;
             }
         }
 
@@ -235,7 +241,7 @@ void FoodServer::arrivalHandler(Customer* cus) {
             totalQueueingDelay_ += delay_;
 
             foodLevel_ -= customerInService_ -> foodAmount();
-            double t = exponential(departureMean_);
+            double t = customerInService_ -> serviceTime();
             /// trace file output
             trace_<< "\tservice time = " << t << endl;
 //            cout << "service time = " << t << endl;
@@ -258,13 +264,15 @@ void FoodServer::arrivalHandler(Customer* cus) {
                     totalQueueingDelay_ += delay_;
                     foodLevel_ = 0.0;
 
-                    double t = exponential(departureMean_);
+                    double t = customerInService_ -> serviceTime();
                     /// trace file output
                     trace_<< "\tservice time = " << t << endl;
 //                    cout << "service time = " << t << endl;
                     d_.activate(t);
                 }
                 clearQueue();
+            } else {
+                customersStalled_ ++;
             }
         }
 
@@ -329,12 +337,14 @@ void FoodServer::report() {
     cout << "Server: " << getServerAddress() << endl;
     cout << "Total Customers Arrived: " << customersArrived_ << endl;
     cout << "Total Customers Served: " << customersServed_ <<endl;
+    cout << "Total Customers Stalled: " << customersStalled_ << endl;
     cout << "Total Customers Left Unserved: " << customersLeft_ <<endl;
     cout << "Average Server Utilization: " << 100 * areaBusy_ / Scheduler :: now() << "%" << endl;
     cout << "Average Queue Length: " << areaQueue_ / Scheduler :: now() << endl;
     cout << "Average Food Level: " << areaFoodLevel_ / Scheduler :: now() << endl;
     cout << "Average Queue Delay: " << totalQueueingDelay_ / customersArrived_ << endl;
     cout << "Average Service Delay: " << totalServerDelay_ / customersServed_ << endl;
+    cout << "Number of refill events: " << refillCount_ << endl;
 
     // debug
     if (customersArrived_ != customersServed_ + customersLeft_) cout << "XXXXXXXXXX" <<endl;
@@ -363,4 +373,8 @@ void FoodServer::clearQueue() {
         /// send to next sub-counter
         subCounter_ ->departureHandler(unservedCustomer_);
     }
+}
+
+double FoodServer::continuousRandom() {
+    return refillMinLag_ + (refillMaxLag_ - refillMinLag_) * (double)rand()/(RAND_MAX);
 }

@@ -19,13 +19,15 @@ private:
     double systemArrivalTime_;
     double serverArrivalTime_;
     double foodAmount_;
-    queue<pair<SubCounter*, double> > path_;  // pair<sub-counter, amount>
+    double serviceTime_;
+    queue<pair<SubCounter*, pair<double, double> > > path_;  // pair<sub-counter, pair<amount, service-time>>
 
 public:
     Customer (int id);
 
-    inline queue<pair<SubCounter*, double> >& path() { return path_; }
+    inline queue<pair<SubCounter*, pair<double, double> > >& path() { return path_; }
     inline double& foodAmount() { return foodAmount_; }
+    inline double& serviceTime() { return serviceTime_; }
     inline int& id() { return id_; }
     inline double& systemArrivalTime() { return systemArrivalTime_; }
     inline double& serverArrivalTime() { return serverArrivalTime_; }

@@ -71,15 +71,17 @@ void SubCounter::departureHandler(Customer *cus) {
         // customer has finished service
         return;
     }
-    pair<SubCounter*, double> psa = cus -> path().front();
+    pair<SubCounter*, pair<double, double> > psas = cus -> path().front();
     cus -> path().pop();
-    SubCounter* nextSubCounter = psa.first;
-    double amount = psa.second;
+    SubCounter* nextSubCounter = psas.first;
+    double amount = psas.second.first;
+    double serviceTime = psas.second.second;
     cus -> foodAmount() = amount;
+    cus -> serviceTime() = serviceTime;
     nextSubCounter -> arrivalHandler(cus);
 }
 
-float SubCounter::getCustomerAmount() {
+double SubCounter::getCustomerAmount() {
     double u = (double)rand() / RAND_MAX;
     double l = minAmount_ / foodUnit_;
     double h = maxAmount_ / foodUnit_;
@@ -98,4 +100,9 @@ void SubCounter::report() {
         s -> report();
     }
 
+}
+
+double SubCounter::getCustomerServiceTime() {
+    FoodServer* server = servers[0];
+    return server -> getCustomerServiceTime();
 }
