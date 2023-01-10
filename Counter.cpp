@@ -11,21 +11,7 @@
 int Counter :: customerArrived_ = 0;
 
 Counter::Counter(int id) : id_(id), a_(this), t_(this){
-    customerArrived_ = 0;
-}
 
-double Counter :: exponential() {
-
-    double r = (double)rand()/(RAND_MAX+1);
-    double ex = -arrivalMean_ * log (r);
-    return ex;
-
-}
-
-void Counter :: initialize () {
-    /// initialize the state variables
-    allowArrival_ = true;
-    arrivalMean_ = 3.0;
 
     /// instantiate sub-counters (bottom-up)
 //    [
@@ -50,7 +36,7 @@ void Counter :: initialize () {
     vector<SubCounter*> level2 = { fish, chicken, meat };
 
     // level 1
-    SubCounter* dessert = new SubCounter(0, 1, 0.9, 1, 0, 1, 1, this, &level2);
+    SubCounter* dessert = new SubCounter(0, 1, 0.9, 1, 0, 1, 2, this, &level2);
     vector<SubCounter*> level1 = { dessert };
 
     // level 0
@@ -60,6 +46,23 @@ void Counter :: initialize () {
 
     /// initialize sub-counters and probabilities
     subCounters = vector<vector<SubCounter*> >({ level0, level1, level2, level3, level4 });
+}
+
+double Counter :: exponential() {
+
+    double r = (double)rand()/(RAND_MAX+1);
+    double ex = -arrivalMean_ * log (r);
+    return ex;
+
+}
+
+void Counter :: initialize () {
+    /// initialize the state variables
+    allowArrival_ = true;
+    arrivalMean_ = 3.0;
+
+    customerArrived_ = 0;
+
     for (auto vs : subCounters) {
         for (auto sc : vs) {
             sc -> initialize();
@@ -149,6 +152,22 @@ void Counter::report() {
     for(auto vsc : subCounters) {
         for ( auto sc : vsc) {
             sc -> report();
+        }
+    }
+}
+
+void Counter::setEvaluationInterval(double i) {
+    for (auto vsc : subCounters) {
+        for ( auto sc : vsc) {
+            sc -> setEvaluationInterval(i);
+        }
+    }
+}
+
+void Counter::setMinLevel(bool l) {
+    for (auto vsc : subCounters) {
+        for ( auto sc : vsc) {
+            sc -> setMinLevel(l);
         }
     }
 }

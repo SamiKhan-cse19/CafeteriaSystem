@@ -18,6 +18,7 @@ FoodServer::FoodServer(int id, double minLevel, double maxLevel, double departur
     refillMaxLag_ = refillMaxLag;
 //    customerMinAmount_ = customerMinAmount;
 //    customerMaxAmount_ = customerMaxAmount;
+    createReportFile();
 }
 
 void FoodServer::initialize() {
@@ -36,6 +37,7 @@ void FoodServer::initialize() {
     areaQueue_ = 0.0;
     areaFoodLevel_ = 0.0;
     totalQueueingDelay_ = 0.0;
+    totalServerDelay_ = 0.0;
 
     allowEvaluation_ = true;
 
@@ -57,6 +59,7 @@ void FoodServer::departureHandler() {
     customersServed_ ++;
     serverDelay_ = Scheduler :: now() - customerInService_ -> serverArrivalTime();
     totalServerDelay_ += serverDelay_;
+    serverDelays_.push_back(serverDelay_);
 
     /// send to next sub-counter
     subCounter_ ->departureHandler(customerInService_);
@@ -77,6 +80,7 @@ void FoodServer::departureHandler() {
             // calculate delay
             delay_ = Scheduler :: now() - customerInService_ -> serverArrivalTime();
             totalQueueingDelay_ += delay_;
+            queueingDelays_.push_back(delay_);
 
             foodLevel_ -= customerInService_ -> foodAmount();
             double t = customerInService_ -> serviceTime();
@@ -99,6 +103,7 @@ void FoodServer::departureHandler() {
                     // calculate delay
                     delay_ = Scheduler :: now() - customerInService_ -> serverArrivalTime();
                     totalQueueingDelay_ += delay_;
+                    queueingDelays_.push_back(delay_);
                     foodLevel_ = 0.0;
 
                     double t = customerInService_ -> serviceTime();
@@ -176,6 +181,7 @@ void FoodServer::refillHandler() {
             // calculate delay
             delay_ = Scheduler :: now() - customerInService_ -> serverArrivalTime();
             totalQueueingDelay_ += delay_;
+            queueingDelays_.push_back(delay_);
 
             foodLevel_ -= customerInService_ -> foodAmount();
             double t = customerInService_ -> serviceTime();
@@ -198,6 +204,7 @@ void FoodServer::refillHandler() {
                     // calculate delay
                     delay_ = Scheduler :: now() - customerInService_ -> serverArrivalTime();
                     totalQueueingDelay_ += delay_;
+                    queueingDelays_.push_back(delay_);
                     foodLevel_ = 0.0;
 
                     double t = customerInService_ -> serviceTime();
@@ -239,6 +246,7 @@ void FoodServer::arrivalHandler(Customer* cus) {
             /// calculate delay
             delay_ = Scheduler :: now() - customerInService_ -> serverArrivalTime();
             totalQueueingDelay_ += delay_;
+            queueingDelays_.push_back(delay_);
 
             foodLevel_ -= customerInService_ -> foodAmount();
             double t = customerInService_ -> serviceTime();
@@ -262,6 +270,7 @@ void FoodServer::arrivalHandler(Customer* cus) {
                     // calculate delay
                     delay_ = Scheduler :: now() - customerInService_ -> serverArrivalTime();
                     totalQueueingDelay_ += delay_;
+                    queueingDelays_.push_back(delay_);
                     foodLevel_ = 0.0;
 
                     double t = customerInService_ -> serviceTime();
@@ -307,7 +316,7 @@ void FoodServer::createTraceFile() {
 }
 
 string FoodServer::getServerAddress() {
-    return  "[" + subCounter_->getAddress() + "," + to_string(id_) + "]";
+    return  "[" + subCounter_->getAddress() + "-" + to_string(id_) + "]";
 }
 
 int FoodServer::discreteRandom() {
@@ -334,17 +343,38 @@ void FoodServer::report() {
     /// update statistical variables
     updateStat();
 
+
+
+
     cout << "Server: " << getServerAddress() << endl;
+//    report_ << getServerAddress() << ",";
     cout << "Total Customers Arrived: " << customersArrived_ << endl;
+    report_ << customersArrived_ << ",";
     cout << "Total Customers Served: " << customersServed_ <<endl;
+    report_ << customersServed_ << ",";
     cout << "Total Customers Stalled: " << customersStalled_ << endl;
+    report_ << customersStalled_ << ",";
     cout << "Total Customers Left Unserved: " << customersLeft_ <<endl;
+    report_ << customersLeft_ << ",";
     cout << "Average Server Utilization: " << 100 * areaBusy_ / Scheduler :: now() << "%" << endl;
+    report_ << 100 * areaBusy_ / Scheduler :: now() << ",";
     cout << "Average Queue Length: " << areaQueue_ / Scheduler :: now() << endl;
+    report_ << areaQueue_ / Scheduler :: now() << ",";
     cout << "Average Food Level: " << areaFoodLevel_ / Scheduler :: now() << endl;
+    report_ << areaFoodLevel_ / Scheduler :: now() << ",";
     cout << "Average Queue Delay: " << totalQueueingDelay_ / customersArrived_ << endl;
+    report_ << totalQueueingDelay_ / customersArrived_ << ",";
     cout << "Average Service Delay: " << totalServerDelay_ / customersServed_ << endl;
+    report_ << totalServerDelay_ / customersServed_ << ",";
     cout << "Number of refill events: " << refillCount_ << endl;
+    report_ << refillCount_ << endl;
+
+//    report_ << "Server: " << getServerAddress() << endl;
+//    report_ << "#, Queue Delay, Server Delay" << endl;
+//    for (int i=0; i<queueingDelays_.size(); i++) {
+//        report_ << i << ", " << queueingDelays_[i] << ", " << serverDelays_[i] << endl;
+//    }
+
 
     // debug
     if (customersArrived_ != customersServed_ + customersLeft_) cout << "XXXXXXXXXX" <<endl;
@@ -377,4 +407,16 @@ void FoodServer::clearQueue() {
 
 double FoodServer::continuousRandom() {
     return refillMinLag_ + (refillMaxLag_ - refillMinLag_) * (double)rand()/(RAND_MAX);
+}
+
+void FoodServer::createReportFile() {
+    /// create report file
+    report_.open ("report" + getServerAddress() + ".csv", ios::out);
+    if (!report_) {
+        cout << "cannot open the report file.\n";
+        return;
+    }
+
+    report_ << "Total Customers Arrived, Total Customers Served, Total Customers Stalled, Total Customers Left Unserved, Average Server Utilization, Average Queue Length, Average Food Level, Average Queue Delay, Average Service Delay, Number of refill events" << endl;
+
 }

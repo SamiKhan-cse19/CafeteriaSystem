@@ -24,6 +24,9 @@ public:
     inline double& arrivalMean () { return (arrivalMean_); }
     inline int& id() { return id_; }
 
+    void setMinLevel(bool l);
+    void setEvaluationInterval(double i);
+
 private:
     ArrivalEvent a_;
     TerminationEvent t_;

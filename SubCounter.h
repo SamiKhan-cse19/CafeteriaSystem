@@ -38,6 +38,9 @@ public:
     inline double& probability() { return probability_; }
     inline double& foodUnit() { return foodUnit_; }
 
+    void setMinLevel(bool l);
+    void setEvaluationInterval(double i);
+
     string getAddress();
     double getCustomerAmount();
     double getCustomerServiceTime();

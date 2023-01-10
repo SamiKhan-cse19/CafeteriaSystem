@@ -33,6 +33,8 @@ public:
     inline double& serverArrivalTime() { return serverArrivalTime_; }
     inline Customer* next() { return next_; }
 
+
+
 };
 
 

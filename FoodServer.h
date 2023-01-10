@@ -55,6 +55,7 @@ private:
     int customersLeft_;
     int customersStalled_;
     int refillCount_;
+    vector<double> queueingDelays_, serverDelays_;
 
     bool allowEvaluation_;
 
@@ -90,7 +91,9 @@ public:
 
     // static trace file
     static ofstream trace_;
+    ofstream report_;
     static void createTraceFile();
+    void createReportFile();
 
     // helper probability functions
     static double exponential (double mean);

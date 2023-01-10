@@ -63,7 +63,7 @@ FoodServer *SubCounter::getShortestQueueServer() {
 }
 
 string SubCounter::getAddress() {
-    return to_string(counter_->id()) + "," + to_string(level_) + "," + to_string(id_);
+    return to_string(counter_->id()) + "-" + to_string(level_) + "-" + to_string(id_);
 }
 
 void SubCounter::departureHandler(Customer *cus) {
@@ -105,4 +105,16 @@ void SubCounter::report() {
 double SubCounter::getCustomerServiceTime() {
     FoodServer* server = servers[0];
     return server -> getCustomerServiceTime();
+}
+
+void SubCounter::setMinLevel(bool l) {
+    for (auto s : servers) {
+        if (l == 0) s -> minLevel() = maxAmount_;
+        else s -> minLevel() = 2 * maxAmount_;
+    }
+}
+
+void SubCounter::setEvaluationInterval(double i) {
+    for (auto s : servers)
+        s -> evaluationInterval() = i;
 }
