@@ -19,6 +19,7 @@ public:
     void terminationHandler();
 
     void report();
+    void finalReport();
 
     inline int& customerArrived () { return (customerArrived_); }
     inline double& arrivalMean () { return (arrivalMean_); }

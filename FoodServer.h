@@ -55,6 +55,7 @@ private:
     int customersLeft_;
     int customersStalled_;
     int refillCount_;
+    int maxQueueLength_;
     vector<double> queueingDelays_, serverDelays_;
 
     bool allowEvaluation_;
@@ -88,10 +89,17 @@ public:
 
     void updateStat();
     void report();
+    void finalReport();
 
     // static trace file
     static ofstream trace_;
+
+    // report on individual servers
     ofstream report_;
+
+    // store statistical values
+    vector<double> served, stalled, serverUtil, avgQueueLen, avgFoodLevel, avgQueueDelay, avgServerDelay, refillCount;
+
     static void createTraceFile();
     void createReportFile();
 

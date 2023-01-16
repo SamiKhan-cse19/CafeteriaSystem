@@ -38,6 +38,7 @@ void FoodServer::initialize() {
     areaFoodLevel_ = 0.0;
     totalQueueingDelay_ = 0.0;
     totalServerDelay_ = 0.0;
+    maxQueueLength_ = 0;
 
     allowEvaluation_ = true;
 
@@ -323,9 +324,11 @@ int FoodServer::discreteRandom() {
     // for determining batch size (number of customers arriving at a time)
     double u = (double)rand() / (RAND_MAX);
     if(u<0.1667) return 1;
-    else if(u<0.5001) return 2;
-    else if(u<0.8335) return 3;
-    return 4;
+    else if(u<0.3334) return 2;
+    else if(u<0.5001) return 3;
+    else if(u<0.6668) return 4;
+    else if(u<0.8335) return 5;
+    return 6;
 }
 
 void FoodServer::terminationHandler() {
@@ -349,25 +352,54 @@ void FoodServer::report() {
     cout << "Server: " << getServerAddress() << endl;
 //    report_ << getServerAddress() << ",";
     cout << "Total Customers Arrived: " << customersArrived_ << endl;
-    report_ << customersArrived_ << ",";
+//    report_ << customersArrived_ << ",";
     cout << "Total Customers Served: " << customersServed_ <<endl;
-    report_ << customersServed_ << ",";
+    report_ << 100.0 * customersServed_ / (double)customersArrived_ << ",";
+//    report_served << getServerAddress() << "," << 100.0 * customersServed_ / (double)customersArrived_ << endl;
+    served.push_back(100.0 * customersServed_ / (double)customersArrived_);
+
     cout << "Total Customers Stalled: " << customersStalled_ << endl;
-    report_ << customersStalled_ << ",";
+    report_ << 100.0 * customersStalled_ / (double)customersArrived_ << ",";
+//    report_stalled << getServerAddress() << "," << 100.0 * customersStalled_ / (double)customersArrived_ << endl;
+    stalled.push_back(100.0 * customersStalled_ / (double)customersArrived_);
+
     cout << "Total Customers Left Unserved: " << customersLeft_ <<endl;
-    report_ << customersLeft_ << ",";
+//    report_ << customersLeft_ << ",";
+
     cout << "Average Server Utilization: " << 100 * areaBusy_ / Scheduler :: now() << "%" << endl;
     report_ << 100 * areaBusy_ / Scheduler :: now() << ",";
+//    report_serverUtil << getServerAddress() << "," << 100 * areaBusy_ / Scheduler :: now() << endl;
+    serverUtil.push_back(100 * areaBusy_ / Scheduler :: now());
+
     cout << "Average Queue Length: " << areaQueue_ / Scheduler :: now() << endl;
     report_ << areaQueue_ / Scheduler :: now() << ",";
+//    report_queueLength << getServerAddress() << "," << areaQueue_ / Scheduler :: now() << endl;
+    avgQueueLen.push_back(areaQueue_ / Scheduler :: now());
+
+    report_ << maxQueueLength_ << ",";
+
     cout << "Average Food Level: " << areaFoodLevel_ / Scheduler :: now() << endl;
     report_ << areaFoodLevel_ / Scheduler :: now() << ",";
+//    report_foodLevel << getServerAddress() << "," << areaFoodLevel_ / Scheduler :: now() << endl;
+    avgFoodLevel.push_back(areaFoodLevel_ / Scheduler :: now());
+
     cout << "Average Queue Delay: " << totalQueueingDelay_ / customersArrived_ << endl;
     report_ << totalQueueingDelay_ / customersArrived_ << ",";
+//    report_queueDelay << getServerAddress() << "," << totalQueueingDelay_ / customersArrived_ << endl;
+    avgQueueDelay.push_back(totalQueueingDelay_ / customersArrived_);
+
     cout << "Average Service Delay: " << totalServerDelay_ / customersServed_ << endl;
     report_ << totalServerDelay_ / customersServed_ << ",";
+//    report_serverDelay << getServerAddress() << "," << totalServerDelay_ / customersServed_ << endl;
+    avgServerDelay.push_back(totalServerDelay_ / customersServed_);
+
     cout << "Number of refill events: " << refillCount_ << endl;
-    report_ << refillCount_ << endl;
+    report_ << refillCount_ << ',';
+//    report_refillCount << getServerAddress() << "," << refillCount_ << endl;
+    refillCount.push_back(refillCount_);
+
+    cout << "Remaining food: " << foodLevel_ << endl;
+    report_ << foodLevel_ << endl;
 
 //    report_ << "Server: " << getServerAddress() << endl;
 //    report_ << "#, Queue Delay, Server Delay" << endl;
@@ -386,6 +418,7 @@ void FoodServer::updateStat() {
     areaQueue_ += duration_ * queueLength();
     areaFoodLevel_ += duration_ * foodLevel_;
     timeLastEvent_ = Scheduler :: now();
+    maxQueueLength_ = max(maxQueueLength_, queueLength());
 }
 
 void FoodServer::clearQueue() {
@@ -417,6 +450,20 @@ void FoodServer::createReportFile() {
         return;
     }
 
-    report_ << "Total Customers Arrived, Total Customers Served, Total Customers Stalled, Total Customers Left Unserved, Average Server Utilization, Average Queue Length, Average Food Level, Average Queue Delay, Average Service Delay, Number of refill events" << endl;
+    report_ << "% Served, % Stalled, Avg Server Utilization, Avg Queue Length, Max Queue Length, Avg Food Level, Avg Queue Delay, Avg Service Delay, # refill events, food left" << endl;
+
+//    report_served.open("report_served.csv", ios::out);
+//    report_stalled.open("report_stalled.csv", ios::out);
+//    report_serverUtil.open("report_serverUtil.csv", ios::out);
+//    report_queueLength.open("report_queueLength.csv", ios::out);
+//    report_foodLevel.open("report_foodLevel.csv", ios::out);
+//    report_queueDelay.open("report_queueDelay.csv", ios::out);
+//    report_serverDelay.open("report_serverDelay.csv", ios::out);
+//    report_refillCount.open("report_refillCount.csv", ios::out);
+
+}
+
+
+void FoodServer::finalReport() {
 
 }

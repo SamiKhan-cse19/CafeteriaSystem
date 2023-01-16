@@ -32,6 +32,7 @@ public:
     void terminationHandler ();
 
     void report();
+    void finalReport();
 
     inline int& id() { return id_; }
     inline int& level() { return level_; }

@@ -22,7 +22,7 @@ Counter::Counter(int id) : id_(id), a_(this), t_(this){
 //        [Dal]
 //    ]
     // level 4
-    SubCounter* dal = new SubCounter(0, 4, 0.7, 0.01, 4, 8, 1, this, nullptr);
+    SubCounter* dal = new SubCounter(0, 4, 0.7, 0.01, 4, 8, 2, this, nullptr);
     vector<SubCounter*> level4 = { dal };
 
     // level 3
@@ -59,7 +59,7 @@ double Counter :: exponential() {
 void Counter :: initialize () {
     /// initialize the state variables
     allowArrival_ = true;
-    arrivalMean_ = 3.0;
+    arrivalMean_ = 1.4;
 
     customerArrived_ = 0;
 
@@ -168,6 +168,14 @@ void Counter::setMinLevel(bool l) {
     for (auto vsc : subCounters) {
         for ( auto sc : vsc) {
             sc -> setMinLevel(l);
+        }
+    }
+}
+
+void Counter::finalReport() {
+    for(auto vsc : subCounters) {
+        for ( auto sc : vsc) {
+            sc -> finalReport();
         }
     }
 }
