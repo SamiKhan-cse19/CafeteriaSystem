@@ -5,4 +5,4 @@ A simulation program for a cafeteria system that models, simulates, analyses and
 # Images
 <hr>
 
-![alt text](https://github.com/SamiKhan-cse19/CafeteriaSystem/blob/main/System%20Diagram.png?raw=true)
+![alt text](https://github.com/SamiKhan-cse19/CafeteriaSystem/blob/main/images/System%20Diagram.png?raw=true)
