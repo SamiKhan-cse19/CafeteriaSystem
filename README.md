@@ -2,6 +2,8 @@
 <hr>
 A simulation program for a cafeteria system that models, simulates, analyses and evaluates different configurations. The program output is used to find the best configuration of the cafeteria system resulting in optimum performance.
 
+Here are the links to the detailed <a href="https://github.com/SamiKhan-cse19/CafeteriaSystem/blob/master/report/CSE_4550_Project_Report.pdf"> report </a> and summary <a href="https://github.com/SamiKhan-cse19/CafeteriaSystem/blob/master/report/data.xlsx">data sheet</a>.
+
 # Introduction
 <hr>
 
